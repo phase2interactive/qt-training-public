@@ -143,3 +143,10 @@ Create a project skill in .claude/skills/accessibility-check that runs a Lightho
 Let customers add special instructions to each pizza.
 
 **Summary:** Added an optional per-pizza "Special instructions" field (max 140 characters) to the builder. It's stored on `OrderLine` (with a new migration), validated by the API, and shown in the cart, the confirmation, and the kitchen cards. Pizzas only merge into one cart line when their instructions match. Changed `OrderEndpoints.cs`, `Entities.cs`, `PizzaDbContext.cs`, `Menu.cs`, the `wwwroot` HTML/JS/CSS, `spec.md`, and the API tests (3 new, 56 passing). Checked the full flow in a browser.
+
+## 2026-11-09 15:17 · pass-5,
+
+**Prompt:**
+Run the audit again and record the new scores.
+
+**Summary:** Ran the Lighthouse accessibility audit again on `/` (100) and `/kitchen` (94). The scores didn't change, and the only failure is still the Ready badge contrast. Updated `accessibility-scores.md` with the latest results and a history table.
