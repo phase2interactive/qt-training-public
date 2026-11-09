@@ -33,3 +33,10 @@ ok stop the app
 
 **Summary:** Stopped the running app on port 5268. No code changes; only prompt-log.md updated.
 
+## 2026-11-09 12:00 CST · pass-2
+
+**Prompt:**
+ok open a pr for this branch to main and also open a pr for this back into the forked repo
+
+**Summary:** Opened PR #2 from pass-2 into main on the fork (shwilliamson/qt-training-public-stuart) and draft PR #2 "Stuart Williamson - Pass 2" into phase2interactive/qt-training-public main. Only prompt-log.md changed.
+
