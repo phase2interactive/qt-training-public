@@ -101,3 +101,10 @@ The only other thing I saw was a 404 for /favicon.ico in the browser console, wh
 
 **Summary:** Reviewed the pasted section 3 tester report against the code and repo state: results are consistent, the tree is clean and no app is left running, so nothing needed fixing. No code changed; only prompt-log.md was updated.
 
+## 2026-11-09 14:12 CST · pass-4
+
+**Prompt:**
+fix these issues identified by our tester
+
+**Summary:** Fixed the only issue in the tester's report, the /favicon.ico 404: added wwwroot/favicon.svg and linked it from index.html and kitchen.html. Added a test (53 passing) and confirmed with Playwright on a scratch DB that both pages load with no HTTP or console errors. Files: favicon.svg, index.html, kitchen.html, OrderApiTests.cs, prompt-log.md.
+

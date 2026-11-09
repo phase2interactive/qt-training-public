@@ -240,6 +240,18 @@ public class OrderApiTests : IDisposable
     }
 
     [Theory]
+    [InlineData("/")]
+    [InlineData("/kitchen")]
+    public async Task Pages_LinkAFaviconThatIsServed(string path)
+    {
+        // Without a <link rel="icon">, browsers request /favicon.ico and log a 404.
+        Assert.Contains("<link rel=\"icon\" href=\"/favicon.svg\"", await Client.GetStringAsync(path));
+        var icon = await Client.GetAsync("/favicon.svg");
+        Assert.Equal(HttpStatusCode.OK, icon.StatusCode);
+        Assert.Equal("image/svg+xml", icon.Content.Headers.ContentType?.MediaType);
+    }
+
+    [Theory]
     [InlineData("/", "Neighborhood Pizza")]
     [InlineData("/kitchen", "Kitchen orders")]
     public async Task Pages_AreServed(string path, string expectedText)
