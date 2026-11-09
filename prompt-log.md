@@ -54,3 +54,10 @@ Use Playwright to check that section 2 of requirements.md (Reviewing an Order) w
 
 **Summary:** Ran Playwright checks for AC-2.1–2.3. All functional checks passed, but keyboard focus was lost after +/−/Remove and after typing a quantity, and browsers cached stale JS. Fixed both: order.js updates quantities in place and restores focus, labels now name size and toppings, and Program.cs sends Cache-Control: no-cache. Added 5 cache tests (51 total passing); all 23 Playwright checks pass. Files: order.js, index.html, Program.cs, OrderApiTests.cs, spec.md, prompt-log.md.
 
+## 2026-11-09 13:44 CST · pass-3
+
+**Prompt:**
+ok, open a pr for this branch both in this repo and in the forked repo
+
+**Summary:** Opened PR #3 from pass-3 into main on the fork (shwilliamson/qt-training-public-stuart) and draft PR #3 "Stuart Williamson - Pass 3" into phase2interactive/qt-training-public main. Only prompt-log.md changed.
+
