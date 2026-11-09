@@ -157,3 +157,10 @@ Run the audit again and record the new scores.
 so run that then
 
 **Summary:** Ran the `accessibility-check` skill. It fixed the kitchen Ready badge contrast by darkening the shared `--ok` color from `#2f7d32` to `#286a2a` in `site.css`. Both pages now score 100 and all 56 tests pass. Updated `accessibility-scores.md`.
+
+## 2026-11-09 15:21 · pass-5
+
+**Prompt:**
+great, open a pr into both this repo and the forked repo for pass-5
+
+**Summary:** Renamed the branch from `pass-5,` to `pass-5` and pushed it. Opened PR #5 into main on the fork (shwilliamson/qt-training-public-stuart) and draft PR #5 "Stuart Williamson - Pass 5" into phase2interactive/qt-training-public main. Only prompt-log.md changed.
