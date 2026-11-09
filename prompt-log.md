@@ -75,3 +75,29 @@ ok, open a pr for this branch both in this repo and in the forked repo
 You are a tester. Do not change code. Use Playwright to check section 3 of requirements.md (Placing an Order) against the running app. Report each acceptance criterion as pass or fail, with steps to reproduce.
 
 **Summary:** Ran the app against a scratch database and tested AC-3.1 to AC-3.3 with Playwright plus direct API calls. All three passed. No code changed; only prompt-log.md was updated.
+## 2026-11-09 14:11 CST · pass-4
+
+**Prompt:**
+All three acceptance criteria in section 3 pass. I tested in a Playwright browser at http://localhost:5268 and also sent requests straight to POST /api/orders to check the server rejects bad orders on its own. I ran the app against a scratch database so your dev database wasn't touched. No code was changed.
+
+AC-3.1: You can't submit an empty order or one without a name. PASS
+1. Open /, leave the cart empty and type "Alice" as the name. "Place pickup order" stays disabled.
+2. Add a Small pizza with Pepperoni and enter a name of only spaces. The button stays disabled.
+3. Send the order directly to the API:
+   - With no items, or an empty item list, the server returns 400 "Your order is empty."
+   - With no name, or only spaces, it returns 400 "Please enter your name."
+   - None of these rejected requests created an order.
+
+AC-3.2: The confirmation shows the order number, name, items and total. PASS
+1. Add a Small pizza with Pepperoni ($12) and a Large with Mushrooms and Onions, quantity 2 ($36).
+2. Enter "  Alice Tester  " and click "Place pickup order".
+3. The confirmation reads "Order placed!", shows Order #1001 and the name "Alice Tester" with the spaces trimmed. It lists both items with quantity, toppings, price each and line totals, and shows Total $48.00.
+
+AC-3.3: A submitted order is available to the kitchen. PASS
+1. After placing the order above, open /kitchen.html.
+2. Order #1001 is in the "New" column with the name, items, Total $48.00 and a "Mark Ready" button.
+
+The only other thing I saw was a 404 for /favicon.ico in the browser console, which isn't part of section 3.
+
+**Summary:** Reviewed the pasted section 3 tester report against the code and repo state: results are consistent, the tree is clean and no app is left running, so nothing needed fixing. No code changed; only prompt-log.md was updated.
+
