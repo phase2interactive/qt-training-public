@@ -165,6 +165,7 @@ One page with three areas: **Build a pizza**, **Your order** (cart), and **Place
 ### 5.2 Cart (AC-2.1, AC-2.2, AC-2.3)
 - Each line shows the size name, toppings (or "Cheese only"), unit price, a quantity control, the line total, and a **Remove** button.
 - Quantity control: − / number / + buttons, limited to 1–20. The − button is disabled at 1 and + is disabled at 20. Typed values outside 1–20 snap back to the nearest valid value.
+- Keyboard focus is never lost while editing the cart. Quantity changes update the line in place, so the focused control keeps focus. If a focused +/− button becomes disabled, focus moves to that line's quantity box. After Remove, focus moves to the next line's Remove button (or the previous one, or the "Your order" heading when the cart is empty). Each control's accessible label names the size and toppings, so lines for the same size can be told apart.
 - The **Total** at the bottom is the sum of the line totals. It updates whenever a line is added, removed, or its quantity changes.
 - An empty cart shows "Your order is empty." and the submit button is disabled.
 - The cart is saved to `localStorage` (key `np.cart`) after every change and restored when the page loads, so it survives a refresh. Stored lines with an unknown size, unknown topping, or invalid quantity are dropped when the cart is restored. The cart stores only ids and quantities. Prices are always recalculated from the menu.
@@ -202,6 +203,7 @@ Built from the server's response, not from the client cart:
 - The server is authoritative for all validation and pricing (4.2). Client checks only make the UI friendlier.
 - Unknown routes under `/api` return `404` JSON. Unhandled exceptions return `500` with `ProblemDetails` and are logged.
 - User-entered text is inserted with `textContent`, never `innerHTML`, so names cannot inject HTML.
+- Pages, scripts, and styles are served with `Cache-Control: no-cache`, so browsers revalidate them with the ETag and pick up updates on the next load.
 
 ## 9. Acceptance criteria traceability
 

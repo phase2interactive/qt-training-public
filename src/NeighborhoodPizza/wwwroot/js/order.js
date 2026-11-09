@@ -135,14 +135,37 @@ function describePizza(line) {
   return { title: findSize(line.size).name, toppings: toppingsText(names) };
 }
 
+// Where keyboard focus should go after the next cart render, e.g. "large|pepperoni:inc".
+// Set when a removed line takes its focused button with it.
+let pendingFocus = null;
+
+/** Return focus to the same control (by data-focus key) after the cart is rebuilt. */
+function restoreCartFocus(key) {
+  if (!key) return;
+  if (key === "cart-title") { $("cart-title").focus(); return; }
+  const list = $("cart-lines");
+  let target = list.querySelector(`[data-focus="${CSS.escape(key)}"]`);
+  // A +/− button that just became disabled can't hold focus; use that line's quantity box.
+  if (target && target.disabled) {
+    target = list.querySelector(`[data-focus="${CSS.escape(key.replace(/:(inc|dec)$/, ":qty"))}"]`);
+  }
+  target?.focus();
+}
+
 function renderCart() {
   const list = $("cart-lines");
+  const active = document.activeElement;
+  const focusKey = pendingFocus ?? (active && list.contains(active) ? active.dataset.focus : null);
+  pendingFocus = null;
+
   list.replaceChildren(...state.cart.map((line, index) => {
     const unit = unitPriceCents(line.size, line.toppings);
     const d = describePizza(line);
+    const key = lineKey(line.size, line.toppings);
+    const label = `${d.title}, ${d.toppings}`;
     const qtyInput = el("input", {
       type: "number", min: MIN_QTY, max: MAX_QTY, step: 1, value: line.quantity, class: "qty-input",
-      attrs: { "aria-label": `Quantity for ${d.title}, ${d.toppings}`, inputmode: "numeric" },
+      attrs: { "aria-label": `Quantity for ${label}`, inputmode: "numeric", "data-focus": key + ":qty" },
       on: {
         change: (e) => {
           const n = parseInt(e.target.value, 10);
@@ -150,7 +173,7 @@ function renderCart() {
         },
       },
     });
-    return el("li", { class: "cart-line" },
+    return el("li", { class: "cart-line", attrs: { "data-key": key } },
       el("div", { class: "line-info" },
         el("div", { class: "line-title", text: d.title }),
         el("div", { class: "line-toppings", text: d.toppings }),
@@ -158,33 +181,68 @@ function renderCart() {
       el("div", { class: "qty" },
         el("button", {
           type: "button", class: "btn btn-qty", text: "−", disabled: line.quantity <= MIN_QTY,
-          attrs: { "aria-label": `Decrease quantity of ${d.title}` },
+          attrs: { "aria-label": `Decrease quantity of ${label}`, "data-focus": key + ":dec" },
           on: { click: () => setQuantity(index, line.quantity - 1) },
         }),
         qtyInput,
         el("button", {
           type: "button", class: "btn btn-qty", text: "+", disabled: line.quantity >= MAX_QTY,
-          attrs: { "aria-label": `Increase quantity of ${d.title}` },
+          attrs: { "aria-label": `Increase quantity of ${label}`, "data-focus": key + ":inc" },
           on: { click: () => setQuantity(index, line.quantity + 1) },
         })),
       el("div", { class: "line-total", text: formatCents(unit * line.quantity) }),
       el("button", {
         type: "button", class: "btn btn-link", text: "Remove",
-        attrs: { "aria-label": `Remove ${d.title}, ${d.toppings}` },
+        attrs: { "aria-label": `Remove ${label}`, "data-focus": key + ":remove" },
         on: { click: () => removeLine(index) },
       }));
   }));
 
   $("cart-empty").hidden = state.cart.length > 0;
   $("cart-total").textContent = formatCents(cartTotalCents());
+  restoreCartFocus(focusKey);
 }
 
 function setQuantity(index, n) {
   state.cart[index].quantity = clampQty(n);
-  cartChanged();
+  saveCart();
+  updateLineInPlace(index);
+  updateSubmitState();
+}
+
+/**
+ * Patch one cart line and the total without rebuilding the list, so whatever has
+ * keyboard focus (a +/− button, or the next control after Tab) keeps it.
+ */
+function updateLineInPlace(index) {
+  const line = state.cart[index];
+  const key = lineKey(line.size, line.toppings);
+  const li = $("cart-lines").querySelector(`li[data-key="${CSS.escape(key)}"]`);
+  if (!li) { renderCart(); return; }
+
+  const qty = li.querySelector(".qty-input");
+  const dec = li.querySelector('[data-focus$=":dec"]');
+  const inc = li.querySelector('[data-focus$=":inc"]');
+  const focused = document.activeElement;
+
+  qty.value = line.quantity;
+  dec.disabled = line.quantity <= MIN_QTY;
+  inc.disabled = line.quantity >= MAX_QTY;
+  // A button that just became disabled loses focus; hand it to the quantity box.
+  if ((focused === dec && dec.disabled) || (focused === inc && inc.disabled)) qty.focus();
+
+  li.querySelector(".line-total").textContent =
+    formatCents(unitPriceCents(line.size, line.toppings) * line.quantity);
+  $("cart-total").textContent = formatCents(cartTotalCents());
 }
 
 function removeLine(index) {
+  // If the Remove button had focus, move it to the next line's Remove (or the previous one,
+  // or the cart heading when the cart becomes empty) instead of dropping it on <body>.
+  if ($("cart-lines").contains(document.activeElement)) {
+    const neighbor = state.cart[index + 1] ?? state.cart[index - 1];
+    pendingFocus = neighbor ? lineKey(neighbor.size, neighbor.toppings) + ":remove" : "cart-title";
+  }
   state.cart.splice(index, 1);
   $("add-status").textContent = "";
   cartChanged();

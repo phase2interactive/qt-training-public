@@ -226,6 +226,20 @@ public class OrderApiTests : IDisposable
     }
 
     [Theory]
+    [InlineData("/")]
+    [InlineData("/kitchen")]
+    [InlineData("/js/order.js")]
+    [InlineData("/js/kitchen.js")]
+    [InlineData("/css/site.css")]
+    public async Task StaticFiles_RequireRevalidation(string path)
+    {
+        // Without this, browsers cache old scripts heuristically and miss updates.
+        var res = await Client.GetAsync(path);
+        Assert.Equal(HttpStatusCode.OK, res.StatusCode);
+        Assert.True(res.Headers.CacheControl?.NoCache, $"{path} should send Cache-Control: no-cache");
+    }
+
+    [Theory]
     [InlineData("/", "Neighborhood Pizza")]
     [InlineData("/kitchen", "Kitchen orders")]
     public async Task Pages_AreServed(string path, string expectedText)

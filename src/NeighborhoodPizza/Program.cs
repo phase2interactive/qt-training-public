@@ -24,13 +24,21 @@ InitializeDatabase(app);
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseDefaultFiles();
-app.UseStaticFiles();
+// Make browsers revalidate pages, scripts and styles (cheap 304s via ETag) so an update
+// reaches customers and the kitchen screen on the next load instead of running stale JS.
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx => ctx.Context.Response.Headers.CacheControl = "no-cache",
+});
 
 app.MapMenuEndpoints();
 app.MapOrderEndpoints();
 
-app.MapGet("/kitchen", (IWebHostEnvironment env) =>
-    Results.File(Path.Combine(env.WebRootPath, "kitchen.html"), "text/html; charset=utf-8"));
+app.MapGet("/kitchen", (IWebHostEnvironment env, HttpContext http) =>
+{
+    http.Response.Headers.CacheControl = "no-cache";
+    return Results.File(Path.Combine(env.WebRootPath, "kitchen.html"), "text/html; charset=utf-8");
+});
 
 // Unknown API routes return a JSON 404 rather than falling through to static files.
 app.Map("/api/{**rest}", () =>

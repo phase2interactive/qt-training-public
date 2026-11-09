@@ -47,3 +47,10 @@ open both of these in my browser
 
 **Summary:** Opened the fork PR #2 and the upstream draft PR #2 in the default browser. Only prompt-log.md changed.
 
+## 2026-11-09 12:38 CST · pass-3
+
+**Prompt:**
+Use Playwright to check that section 2 of requirements.md (Reviewing an Order) works in the running app. Fix anything that fails.
+
+**Summary:** Ran Playwright checks for AC-2.1–2.3. All functional checks passed, but keyboard focus was lost after +/−/Remove and after typing a quantity, and browsers cached stale JS. Fixed both: order.js updates quantities in place and restores focus, labels now name size and toppings, and Program.cs sends Cache-Control: no-cache. Added 5 cache tests (51 total passing); all 23 Playwright checks pass. Files: order.js, index.html, Program.cs, OrderApiTests.cs, spec.md, prompt-log.md.
+
