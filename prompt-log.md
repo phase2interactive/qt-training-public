@@ -164,3 +164,10 @@ so run that then
 great, open a pr into both this repo and the forked repo for pass-5
 
 **Summary:** Renamed the branch from `pass-5,` to `pass-5` and pushed it. Opened PR #5 into main on the fork (shwilliamson/qt-training-public-stuart) and draft PR #5 "Stuart Williamson - Pass 5" into phase2interactive/qt-training-public main. Only prompt-log.md changed.
+
+## 2026-11-09 15:22 · pass-5
+
+**Prompt:**
+open those prs in my browser
+
+**Summary:** Opened both pass-5 PRs (fork #5 and phase2interactive/qt-training-public #5) in the default browser. Only prompt-log.md changed.
