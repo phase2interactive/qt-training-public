@@ -129,3 +129,10 @@ ok, this is all good now, open a pr into both this repo and the forked repo
 Run a Lighthouse accessibility audit on each page of the running app and tell me the scores. Persist the scores to an accessibility-scores.md file somewhere
 
 **Summary:** Started the app (it wasn't running) and ran Lighthouse 12.6.1 accessibility audits on `/` (100) and `/kitchen` (94, one color-contrast failure on the Ready badge). Recorded the results in `accessibility-scores.md` at the repo root.
+
+## 2026-11-09 15:10 · pass-5,
+
+**Prompt:**
+Create a project skill in .claude/skills/accessibility-check that runs a Lighthouse accessibility audit and fixes problems until each page scores 95 or higher.
+
+**Summary:** Added the `accessibility-check` project skill (`.claude/skills/accessibility-check/SKILL.md`) and a helper script (`scripts/audit.sh`) that audits each page and prints its score and failing elements. The skill's loop is: start the app, find the pages, audit, fix, then audit again until every page is ≥ 95, and record the scores. Tested the script against the running app.
