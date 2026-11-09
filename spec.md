@@ -20,7 +20,7 @@ Delivery, online payment (customers pay at the counter), customer accounts, staf
 
 | Concern | Choice |
 |---|---|
-| Runtime | .NET 8 (LTS), ASP.NET Core Minimal API |
+| Runtime | .NET 10, ASP.NET Core Minimal API (the only SDK installed on the build machine) |
 | Front end | Static HTML, CSS, and vanilla JavaScript served from `wwwroot` |
 | Storage | SQLite through EF Core (`Microsoft.EntityFrameworkCore.Sqlite`) |
 | Tests | xUnit, `Microsoft.AspNetCore.Mvc.Testing` (`WebApplicationFactory`) |
@@ -53,7 +53,7 @@ tests/NeighborhoodPizza.Tests/
 - Connection string `ConnectionStrings:Pizza`, default `Data Source=App_Data/pizza.db`. The `App_Data/` folder is created on startup if it is missing. `*.db` files are already ignored by `.gitignore`.
 - `/kitchen` maps to `wwwroot/kitchen.html`. `/` serves `index.html`.
 
-**Run:** `dotnet run --project src/NeighborhoodPizza`. **Test:** `dotnet test`.
+**Run:** `dotnet run --project src/NeighborhoodPizza`, then open http://localhost:5268 (customers) and http://localhost:5268/kitchen (kitchen). **Test:** `dotnet test`. **Migrations:** `dotnet tool restore`, then `dotnet ef migrations add <Name> --project src/NeighborhoodPizza -o Data/Migrations`.
 
 ## 3. Domain model and pricing
 
@@ -88,8 +88,8 @@ The menu lives in `Menu.cs` as the single source of truth. The front end loads i
 | `CustomerName` | string (≤ 50) | Trimmed |
 | `Status` | enum `New` \| `Ready` | Stored as a string. Defaults to `New`. |
 | `TotalCents` | int | Snapshot when the order is submitted |
-| `CreatedAt` | DateTimeOffset (UTC) | |
-| `ReadyAt` | DateTimeOffset? (UTC) | Set when the order is marked Ready |
+| `CreatedAt` | DateTime (UTC) | DateTime, not DateTimeOffset, because EF Core can't sort DateTimeOffset on SQLite |
+| `ReadyAt` | DateTime? (UTC) | Set when the order is marked Ready |
 | `Lines` | list of OrderLine | |
 
 **OrderLine**: `Id`, `OrderId`, `Size` (`small`\|`large`), `Quantity` (1–20), `UnitPriceCents`, `LineTotalCents`, `Toppings`.

@@ -12,3 +12,10 @@ open spec.md in vscode so i can see it
 
 **Summary:** Opened spec.md in VS Code. No code changes; only prompt-log.md updated.
 
+## 2026-11-09 11:51 CST · pass-2
+
+**Prompt:**
+Build the app from spec.md. Check it against every acceptance criterion in requirements.md when you're done.
+
+**Summary:** Built the Neighborhood Pizza app (.NET 10 Minimal API, EF Core SQLite, static HTML/JS customer and kitchen pages) plus 46 xUnit tests, all passing; verified every AC in the browser, including kitchen polling and persistence across a server restart. Files: NeighborhoodPizza.slnx, dotnet-tools.json, src/NeighborhoodPizza/**, tests/NeighborhoodPizza.Tests/**, spec.md (.NET 10 and DateTime notes, run instructions), prompt-log.md.
+
