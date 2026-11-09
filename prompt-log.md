@@ -142,4 +142,4 @@ Create a project skill in .claude/skills/accessibility-check that runs a Lightho
 **Prompt:**
 Let customers add special instructions to each pizza.
 
-**Summary:** Added an optional per-pizza "Special instructions" field (max 140 characters) to the builder. It's stored on `OrderLine` (with a new migration), validated by the API, and shown in the cart, the confirmation, and the kitchen cards. Pizzas only merge into one cart line when their instructions match. Changed `OrderEndpoints.cs`, `Entities.cs`, `PizzaDbContext.cs`, `Menu.cs`, the `wwwroot` HTML/JS/CSS, `spec.md`, and the API tests (59 passing). Checked the full flow in a browser.
+**Summary:** Added an optional per-pizza "Special instructions" field (max 140 characters) to the builder. It's stored on `OrderLine` (with a new migration), validated by the API, and shown in the cart, the confirmation, and the kitchen cards. Pizzas only merge into one cart line when their instructions match. Changed `OrderEndpoints.cs`, `Entities.cs`, `PizzaDbContext.cs`, `Menu.cs`, the `wwwroot` HTML/JS/CSS, `spec.md`, and the API tests (3 new, 56 passing). Checked the full flow in a browser.
