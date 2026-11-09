@@ -171,3 +171,10 @@ great, open a pr into both this repo and the forked repo for pass-5
 open those prs in my browser
 
 **Summary:** Opened both pass-5 PRs (fork #5 and phase2interactive/qt-training-public #5) in the default browser. Only prompt-log.md changed.
+
+## 2026-11-09 15:24 · pass-5
+
+**Prompt:**
+shut down the app
+
+**Summary:** Stopped the app server on port 5268. Only prompt-log.md changed.
