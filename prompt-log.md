@@ -40,3 +40,10 @@ ok open a pr for this branch to main and also open a pr for this back into the f
 
 **Summary:** Opened PR #2 from pass-2 into main on the fork (shwilliamson/qt-training-public-stuart) and draft PR #2 "Stuart Williamson - Pass 2" into phase2interactive/qt-training-public main. Only prompt-log.md changed.
 
+## 2026-11-09 12:01 CST · pass-2
+
+**Prompt:**
+open both of these in my browser
+
+**Summary:** Opened the fork PR #2 and the upstream draft PR #2 in the default browser. Only prompt-log.md changed.
+
