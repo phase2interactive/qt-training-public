@@ -68,3 +68,10 @@ ok, open a pr for this branch both in this repo and in the forked repo
 
 **Summary:** User created the pass-4 branch from pass-3. No changes besides this log entry.
 
+
+## 2026-11-09 14:08 · pass-4
+
+**Prompt:**
+You are a tester. Do not change code. Use Playwright to check section 3 of requirements.md (Placing an Order) against the running app. Report each acceptance criterion as pass or fail, with steps to reproduce.
+
+**Summary:** Ran the app against a scratch database and tested AC-3.1 to AC-3.3 with Playwright plus direct API calls. All three passed. No code changed; only prompt-log.md was updated.
