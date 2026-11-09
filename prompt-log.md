@@ -26,3 +26,10 @@ run it and open both the customer and kitchen views in my browser
 
 **Summary:** Started the app on http://localhost:5268 in the background and opened the customer (/) and kitchen (/kitchen) pages in the default browser. No code changes; only prompt-log.md updated.
 
+## 2026-11-09 11:58 CST · pass-2
+
+**Prompt:**
+ok stop the app
+
+**Summary:** Stopped the running app on port 5268. No code changes; only prompt-log.md updated.
+
