@@ -122,3 +122,10 @@ ok, this is all good now, open a pr into both this repo and the forked repo
 
 **Summary:** Opened PR #4 from pass-4 into main on the fork (shwilliamson/qt-training-public-stuart) and draft PR #4 "Stuart Williamson - Pass 4" into phase2interactive/qt-training-public main. Only prompt-log.md changed.
 
+
+## 2026-11-09 14:47 · pass-5,
+
+**Prompt:**
+Run a Lighthouse accessibility audit on each page of the running app and tell me the scores. Persist the scores to an accessibility-scores.md file somewhere
+
+**Summary:** Started the app (it wasn't running) and ran Lighthouse 12.6.1 accessibility audits on `/` (100) and `/kitchen` (94, one color-contrast failure on the Ready badge). Recorded the results in `accessibility-scores.md` at the repo root.
