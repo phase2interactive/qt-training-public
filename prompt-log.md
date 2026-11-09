@@ -19,3 +19,10 @@ ok, open a pr for this branch to main and also open a pr back into the forked re
 
 **Summary:** Opened a PR from pass-1 to main on the fork, and a draft PR from pass-1 to phase2interactive/qt-training-public main (per the README). Neither was merged. No code changes.
 
+## 2026-11-08 22:50 · pass-1
+
+**Prompt:**
+stop the node instace
+
+**Summary:** Stopped the background pizza app server on port 3000. No code changes.
+
