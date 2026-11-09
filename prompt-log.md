@@ -150,3 +150,10 @@ Let customers add special instructions to each pizza.
 Run the audit again and record the new scores.
 
 **Summary:** Ran the Lighthouse accessibility audit again on `/` (100) and `/kitchen` (94). The scores didn't change, and the only failure is still the Ready badge contrast. Updated `accessibility-scores.md` with the latest results and a history table.
+
+## 2026-11-09 15:19 · pass-5,
+
+**Prompt:**
+so run that then
+
+**Summary:** Ran the `accessibility-check` skill. It fixed the kitchen Ready badge contrast by darkening the shared `--ok` color from `#2f7d32` to `#286a2a` in `site.css`. Both pages now score 100 and all 56 tests pass. Updated `accessibility-scores.md`.
