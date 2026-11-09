@@ -31,6 +31,16 @@ public class KitchenApiTests : IDisposable
     }
 
     [Fact]
+    public async Task List_IncludesSpecialInstructions()
+    {
+        await _host.SubmitAsync("Jordan",
+            new { size = "small", toppings = new[] { "onions" }, quantity = 1, instructions = "extra crispy" }, Item("large"));
+
+        var o = Assert.Single((await ListAsync())!);
+        Assert.Equal(["extra crispy", null], o.Items.Select(i => i.Instructions));
+    }
+
+    [Fact]
     public async Task List_IncludesNameNumberItemsTotal()
     {
         var submitted = await _host.SubmitAsync("Riley", Item("large", 2, "mushrooms", "green-peppers"), Item("small"));

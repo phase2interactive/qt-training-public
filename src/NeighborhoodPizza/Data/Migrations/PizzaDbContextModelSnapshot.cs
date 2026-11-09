@@ -59,6 +59,10 @@ namespace NeighborhoodPizza.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Instructions")
+                        .HasMaxLength(140)
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("LineTotalCents")
                         .HasColumnType("INTEGER");
 

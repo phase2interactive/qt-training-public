@@ -112,6 +112,38 @@ public class OrderApiTests : IDisposable
     }
 
     [Fact]
+    public async Task Submit_SavesTrimmedInstructionsPerPizza()
+    {
+        var order = await _host.SubmitAsync("Pat",
+            new { size = "large", toppings = new[] { "pepperoni" }, quantity = 1, instructions = "  well done  " },
+            new { size = "large", toppings = new[] { "pepperoni" }, quantity = 2, instructions = "light sauce" },
+            new { size = "small", toppings = Array.Empty<string>(), quantity = 1, instructions = "   " },
+            Item("small"));
+
+        Assert.Equal(["well done", "light sauce", null, null], order.Items.Select(i => i.Instructions));
+        // Instructions are free; prices are unaffected.
+        Assert.Equal(1600 + 3200 + 1000 + 1000, order.TotalCents);
+
+        var fetched = await Client.GetFromJsonAsync<OrderDto>($"/api/orders/{order.OrderNumber}", Json);
+        Assert.Equal(["well done", "light sauce", null, null], fetched!.Items.Select(i => i.Instructions));
+    }
+
+    [Fact]
+    public async Task Submit_RejectsInstructionsOver140Characters()
+    {
+        var ok = await _host.SubmitAsync("Pat",
+            new { size = "small", toppings = Array.Empty<string>(), quantity = 1, instructions = " " + new string('x', 140) + " " });
+        Assert.Equal(140, ok.Items[0].Instructions!.Length);
+
+        var errors = await PostExpectingErrors(new
+        {
+            customerName = "Pat",
+            items = new object[] { Item("small"), new { size = "small", toppings = Array.Empty<string>(), quantity = 1, instructions = new string('x', 141) } },
+        });
+        Assert.Equal(["Special instructions must be 140 characters or fewer."], errors["items[1].instructions"]);
+    }
+
+    [Fact]
     public async Task Submit_AssignsConsecutiveOrderNumbers()
     {
         var a = await _host.SubmitAsync("A", Item("small"));

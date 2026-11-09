@@ -136,3 +136,10 @@ Run a Lighthouse accessibility audit on each page of the running app and tell me
 Create a project skill in .claude/skills/accessibility-check that runs a Lighthouse accessibility audit and fixes problems until each page scores 95 or higher.
 
 **Summary:** Added the `accessibility-check` project skill (`.claude/skills/accessibility-check/SKILL.md`) and a helper script (`scripts/audit.sh`) that audits each page and prints its score and failing elements. The skill's loop is: start the app, find the pages, audit, fix, then audit again until every page is ≥ 95, and record the scores. Tested the script against the running app.
+
+## 2026-11-09 15:14 · pass-5,
+
+**Prompt:**
+Let customers add special instructions to each pizza.
+
+**Summary:** Added an optional per-pizza "Special instructions" field (max 140 characters) to the builder. It's stored on `OrderLine` (with a new migration), validated by the API, and shown in the cart, the confirmation, and the kitchen cards. Pizzas only merge into one cart line when their instructions match. Changed `OrderEndpoints.cs`, `Entities.cs`, `PizzaDbContext.cs`, `Menu.cs`, the `wwwroot` HTML/JS/CSS, `spec.md`, and the API tests (59 passing). Checked the full flow in a browser.

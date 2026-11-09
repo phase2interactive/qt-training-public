@@ -29,6 +29,9 @@ public class OrderLine
     public int Quantity { get; set; }
     public int UnitPriceCents { get; set; }
     public int LineTotalCents { get; set; }
+
+    // Optional special instructions for this pizza, e.g. "well done". Null when none.
+    public string? Instructions { get; set; }
     public List<OrderLineTopping> Toppings { get; set; } = [];
 }
 

@@ -3,12 +3,13 @@ using NeighborhoodPizza.Data;
 
 namespace NeighborhoodPizza.Endpoints;
 
-public sealed record SubmitOrderItem(string? Size, List<string>? Toppings, int Quantity);
+public sealed record SubmitOrderItem(string? Size, List<string>? Toppings, int Quantity, string? Instructions = null);
 public sealed record SubmitOrderRequest(string? CustomerName, List<SubmitOrderItem>? Items);
 
 public sealed record ToppingDto(string Id, string Name);
 public sealed record OrderItemDto(
-    string Size, string SizeName, List<ToppingDto> Toppings, int Quantity, int UnitPriceCents, int LineTotalCents);
+    string Size, string SizeName, List<ToppingDto> Toppings, int Quantity, int UnitPriceCents, int LineTotalCents,
+    string? Instructions);
 public sealed record OrderDto(
     int OrderNumber, string CustomerName, string Status, DateTime CreatedAt, DateTime? ReadyAt,
     int TotalCents, List<OrderItemDto> Items);
@@ -60,6 +61,8 @@ public static class OrderEndpoints
                 if (toppings.Count != toppings.Distinct().Count()) Add($"items[{i}].toppings", "Each topping can be added once.");
                 if (item.Quantity is < Menu.MinQuantity or > Menu.MaxQuantity)
                     Add($"items[{i}].quantity", $"Quantity must be between {Menu.MinQuantity} and {Menu.MaxQuantity}.");
+                if (NormalizeInstructions(item.Instructions) is { Length: > Menu.MaxInstructionsLength })
+                    Add($"items[{i}].instructions", $"Special instructions must be {Menu.MaxInstructionsLength} characters or fewer.");
             }
         }
 
@@ -82,6 +85,7 @@ public static class OrderEndpoints
                 UnitPriceCents = unit,
                 LineTotalCents = Pricing.LineTotalCents(unit, item.Quantity),
                 Toppings = toppings.Select(t => new OrderLineTopping { ToppingId = t }).ToList(),
+                Instructions = NormalizeInstructions(item.Instructions),
             };
         }).ToList();
 
@@ -151,6 +155,10 @@ public static class OrderEndpoints
         Results.Problem(statusCode: StatusCodes.Status404NotFound, title: "Order not found",
             detail: $"Order #{orderNumber} does not exist.");
 
+    /// <summary>Trimmed instructions, or null when blank.</summary>
+    public static string? NormalizeInstructions(string? text) =>
+        string.IsNullOrWhiteSpace(text) ? null : text.Trim();
+
     private static DateTime Utc(DateTime d) => DateTime.SpecifyKind(d, DateTimeKind.Utc);
 
     public static OrderDto ToDto(Order o) => new(
@@ -166,5 +174,6 @@ public static class OrderEndpoints
             l.Toppings.OrderBy(t => t.Id).Select(t => new ToppingDto(t.ToppingId, Menu.FindTopping(t.ToppingId)?.Name ?? t.ToppingId)).ToList(),
             l.Quantity,
             l.UnitPriceCents,
-            l.LineTotalCents)).ToList());
+            l.LineTotalCents,
+            l.Instructions)).ToList());
 }

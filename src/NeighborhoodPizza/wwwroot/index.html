@@ -27,6 +27,10 @@
           <legend>Toppings</legend>
           <div id="toppings" class="choices"></div>
         </fieldset>
+        <label for="instructions">Special instructions <span class="optional">(optional)</span></label>
+        <textarea id="instructions" name="instructions" rows="2" maxlength="140"
+                  aria-describedby="instructions-hint"></textarea>
+        <p id="instructions-hint" class="hint">For this pizza only, e.g. "well done" or "cut in squares". Up to 140 characters.</p>
         <p class="pizza-price">Pizza price: <strong id="pizza-price" aria-live="polite">$0.00</strong></p>
         <button type="submit" id="add-btn" class="btn btn-primary">Add to order</button>
         <p id="add-status" class="hint" aria-live="polite"></p>

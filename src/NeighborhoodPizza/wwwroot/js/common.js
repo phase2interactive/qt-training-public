@@ -27,6 +27,11 @@ function el(tag, props, ...children) {
   return node;
 }
 
+/** "Note: well done", or null when there are no special instructions. */
+function instructionsText(text) {
+  return text ? "Note: " + text : null;
+}
+
 /** "Pepperoni, Onions" or "Cheese only". */
 function toppingsText(names) {
   return names.length ? names.join(", ") : "Cheese only";

@@ -26,7 +26,8 @@ function renderCard(order) {
       order.items.map((item) =>
         el("li", {},
           el("strong", { text: `${item.quantity} × ${item.sizeName}` }),
-          el("div", { class: "line-toppings", text: toppingsText(item.toppings.map((t) => t.name)) })))),
+          el("div", { class: "line-toppings", text: toppingsText(item.toppings.map((t) => t.name)) }),
+          item.instructions && el("div", { class: "line-note", text: instructionsText(item.instructions) })))),
     el("div", { class: "card-total", text: "Total " + formatCents(order.totalCents) }),
     isNew && el("button", {
       type: "button", class: "btn btn-primary btn-wide", text: "Mark Ready",

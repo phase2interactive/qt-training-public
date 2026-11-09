@@ -7,7 +7,7 @@ Source: `requirements.md`. This spec covers every acceptance criterion (AC-1.1 �
 A web app for online pickup orders. Customers build pizzas, review a cart, enter their name, and submit. Kitchen staff see submitted orders on a separate page and mark them Ready. Orders are stored in a SQLite file, so they survive app and computer restarts.
 
 **In scope**
-- Pizza builder (size + toppings) with live price.
+- Pizza builder (size + toppings + optional special instructions) with live price.
 - Cart with several pizzas, quantity changes, removal, and a running total.
 - Order submission with customer name, then a confirmation screen.
 - Kitchen board at `/kitchen` with New/Ready status that refreshes itself.
@@ -92,7 +92,7 @@ The menu lives in `Menu.cs` as the single source of truth. The front end loads i
 | `ReadyAt` | DateTime? (UTC) | Set when the order is marked Ready |
 | `Lines` | list of OrderLine | |
 
-**OrderLine**: `Id`, `OrderId`, `Size` (`small`\|`large`), `Quantity` (1–20), `UnitPriceCents`, `LineTotalCents`, `Toppings`.
+**OrderLine**: `Id`, `OrderId`, `Size` (`small`\|`large`), `Quantity` (1–20), `UnitPriceCents`, `LineTotalCents`, `Instructions` (string ≤ 140, nullable: trimmed, `null` when blank), `Toppings`.
 
 **OrderLineTopping**: `Id`, `OrderLineId`, `ToppingId`.
 
@@ -120,7 +120,7 @@ Submits an order.
 Request:
 ```json
 { "customerName": "Pat",
-  "items": [ { "size": "large", "toppings": ["pepperoni","onions"], "quantity": 2 } ] }
+  "items": [ { "size": "large", "toppings": ["pepperoni","onions"], "quantity": 2, "instructions": "well done" } ] }
 ```
 
 Validation. All errors are reported together, not one at a time.
@@ -133,6 +133,7 @@ Validation. All errors are reported together, not one at a time.
 | Every topping is a known topping id | `items[i].toppings` | "Unknown topping." |
 | A line has no duplicate toppings | `items[i].toppings` | "Each topping can be added once." |
 | `quantity` is between 1 and 20 inclusive | `items[i].quantity` | "Quantity must be between 1 and 20." |
+| `instructions` (optional) is ≤ 140 characters after trimming | `items[i].instructions` | "Special instructions must be 140 characters or fewer." |
 
 On success, the server saves the order with status `New`, using server-calculated prices, and returns `201 Created` with `Location: /api/orders/{orderNumber}` and the order body (4.3).
 
@@ -143,7 +144,7 @@ Returns one order, or `404` if it does not exist.
   "createdAt": "2026-11-09T17:02:00Z", "readyAt": null, "totalCents": 3600,
   "items": [ { "size": "large", "sizeName": "Large pizza (14\")",
                "toppings": [{ "id": "pepperoni", "name": "Pepperoni" }, { "id": "onions", "name": "Onions" }],
-               "quantity": 2, "unitPriceCents": 1800, "lineTotalCents": 3600 } ] }
+               "quantity": 2, "unitPriceCents": 1800, "lineTotalCents": 3600, "instructions": "well done" } ] }
 ```
 
 ### 4.4 `GET /api/orders`
@@ -160,15 +161,16 @@ One page with three areas: **Build a pizza**, **Your order** (cart), and **Place
 - Size: radio buttons showing name and price ("Small 10" — $10.00", "Large 14" — $14.00"). Small is selected by default.
 - Toppings: one checkbox per topping, labeled "+$2.00". Any combination, including none, can be selected.
 - A **Pizza price** line shows the current unit price. It updates right away when the size or any topping changes.
-- **Add to order** adds the pizza (quantity 1) to the cart and resets the builder to its default state. If the cart already has a pizza with the same size and the same set of toppings, that line's quantity goes up by 1 instead, capped at 20.
+- **Special instructions (optional)**: a text area, up to 140 characters, for notes on this pizza only (for example "well done"). Instructions are free and don't change the price.
+- **Add to order** adds the pizza (quantity 1) to the cart and resets the builder to its default state, including clearing the instructions. If the cart already has a pizza with the same size, the same set of toppings, and the same trimmed instructions, that line's quantity goes up by 1 instead, capped at 20. Instructions apply to every pizza on that line.
 
 ### 5.2 Cart (AC-2.1, AC-2.2, AC-2.3)
-- Each line shows the size name, toppings (or "Cheese only"), unit price, a quantity control, the line total, and a **Remove** button.
+- Each line shows the size name, toppings (or "Cheese only"), any instructions ("Note: …"), unit price, a quantity control, the line total, and a **Remove** button.
 - Quantity control: − / number / + buttons, limited to 1–20. The − button is disabled at 1 and + is disabled at 20. Typed values outside 1–20 snap back to the nearest valid value.
-- Keyboard focus is never lost while editing the cart. Quantity changes update the line in place, so the focused control keeps focus. If a focused +/− button becomes disabled, focus moves to that line's quantity box. After Remove, focus moves to the next line's Remove button (or the previous one, or the "Your order" heading when the cart is empty). Each control's accessible label names the size and toppings, so lines for the same size can be told apart.
+- Keyboard focus is never lost while editing the cart. Quantity changes update the line in place, so the focused control keeps focus. If a focused +/− button becomes disabled, focus moves to that line's quantity box. After Remove, focus moves to the next line's Remove button (or the previous one, or the "Your order" heading when the cart is empty). Each control's accessible label names the size, toppings, and instructions, so lines for the same pizza with different instructions can be told apart.
 - The **Total** at the bottom is the sum of the line totals. It updates whenever a line is added, removed, or its quantity changes.
 - An empty cart shows "Your order is empty." and the submit button is disabled.
-- The cart is saved to `localStorage` (key `np.cart`) after every change and restored when the page loads, so it survives a refresh. Stored lines with an unknown size, unknown topping, or invalid quantity are dropped when the cart is restored. The cart stores only ids and quantities. Prices are always recalculated from the menu.
+- The cart is saved to `localStorage` (key `np.cart`) after every change and restored when the page loads, so it survives a refresh. Stored lines with an unknown size, unknown topping, invalid quantity, or instructions over 140 characters are dropped when the cart is restored. The cart stores only ids, instructions, and quantities. Prices are always recalculated from the menu.
 
 ### 5.3 Place order (AC-3.1, AC-3.2)
 - A **Your name** text field, required, maximum 50 characters.
@@ -181,14 +183,14 @@ One page with three areas: **Build a pizza**, **Your order** (cart), and **Place
 ### 5.4 Confirmation view (AC-3.2)
 Built from the server's response, not from the client cart:
 - Heading: "Order placed!"
-- **Order #1001** (large and prominent), customer name, each item (size, toppings, quantity, line total), and the order total.
+- **Order #1001** (large and prominent), customer name, each item (size, toppings, instructions, quantity, line total), and the order total.
 - "Pay at the counter when you pick up."
 - A **Start a new order** button that returns to an empty builder.
 
 ## 6. Kitchen UI (`/kitchen`) (AC-4.1, AC-4.2)
 - No login. It is meant for an in-store computer.
 - Two columns, stacking on narrow screens: **New** (oldest first) and **Ready** (most recently readied first). Each column header shows a count.
-- Each order card shows the order number, customer name, time placed (local time), a status badge (**New** or **Ready**), every pizza (quantity × size, then toppings or "Cheese only"), and the order total.
+- Each order card shows the order number, customer name, time placed (local time), a status badge (**New** or **Ready**), every pizza (quantity × size, then toppings or "Cheese only", then any instructions as a highlighted "Note: …"), and the order total.
 - New cards have a **Mark Ready** button. Clicking it calls `POST /api/orders/{n}/ready`. On success the card moves to the Ready column. On failure the card shows an inline error and stays in New. Ready cards have no button.
 - The page loads orders from `GET /api/orders` when it opens and again every 5 seconds. Each refresh fully replaces the board's contents. If a refresh fails, a "Connection lost — retrying" banner appears and polling continues. The banner disappears after the next successful refresh.
 - A "Last updated hh:mm:ss" label shows when the board last refreshed.
@@ -238,8 +240,8 @@ Built from the server's response, not from the client cart:
 - Order total sums mixed lines correctly.
 
 ### 10.2 Integration tests (`WebApplicationFactory`, each test with its own temp SQLite file)
-- **OrderApiTests:** valid submit returns 201 with order number ≥ 1001, the trimmed name, items, and a server-calculated total, ignoring any extra price fields the client sends. Rejects: empty items, missing name, whitespace-only name, name over 50 characters, unknown size, unknown topping, duplicate topping, quantity 0, quantity 21. Multiple errors are returned together. Two orders in a row get consecutive numbers.
-- **KitchenApiTests:** a new order shows up in `GET /api/orders` with status `New` and full details. Sort order is correct. `?status=` filter works. Marking an order Ready moves it and sets `readyAt`. Repeating the call returns 200 and leaves `readyAt` unchanged. An unknown number returns 404.
+- **OrderApiTests:** valid submit returns 201 with order number ≥ 1001, the trimmed name, items, and a server-calculated total, ignoring any extra price fields the client sends. Instructions are trimmed, blank becomes `null`, they're returned per item, and they don't affect price. Rejects: empty items, missing name, whitespace-only name, name over 50 characters, unknown size, unknown topping, duplicate topping, quantity 0, quantity 21, instructions over 140 characters. Multiple errors are returned together. Two orders in a row get consecutive numbers.
+- **KitchenApiTests:** a new order shows up in `GET /api/orders` with status `New` and full details, including instructions. Sort order is correct. `?status=` filter works. Marking an order Ready moves it and sets `readyAt`. Repeating the call returns 200 and leaves `readyAt` unchanged. An unknown number returns 404.
 - **PersistenceTests:** start a factory on a temp DB file, submit two orders, and mark one Ready. Dispose the factory, start a new one on the same file, and check that both orders and their statuses are unchanged. Then submit a third order and check that its number follows the last one.
 
 ### 10.3 Manual UI checklist
@@ -252,3 +254,4 @@ Built from the server's response, not from the client cart:
 - **M7** Open `/kitchen` in another tab. The order appears in the New column within 5 seconds with the name, number, pizzas, and total.
 - **M8** Click Mark Ready. The card moves to Ready with a Ready badge.
 - **M9** Stop and restart the app. `/kitchen` shows the same orders and statuses. A new order gets the next number.
+- **M10** Add a large pepperoni with "well done", the same pizza again with "well done", and once with no instructions. The cart shows two lines (quantity 2 with "Note: well done", and quantity 1 with none). The note appears on the confirmation and on the kitchen card.

@@ -19,6 +19,7 @@ public class PizzaDbContext(DbContextOptions<PizzaDbContext> options) : DbContex
         b.Entity<OrderLine>(e =>
         {
             e.Property(l => l.Size).HasMaxLength(32).IsRequired();
+            e.Property(l => l.Instructions).HasMaxLength(Menu.MaxInstructionsLength);
             e.HasMany(l => l.Toppings).WithOne().HasForeignKey(t => t.OrderLineId).OnDelete(DeleteBehavior.Cascade);
         });
 

@@ -115,7 +115,12 @@ legend { font-weight: 600; margin-bottom: 8px; }
 .line-toppings, .line-unit { color: var(--muted); font-size: 0.92rem; }
 .qty-input { width: 52px; height: 34px; text-align: center; font: inherit; border: 1px solid var(--border); border-radius: 6px; }
 
-label[for="customer-name"] { display: block; font-weight: 600; margin-bottom: 6px; }
+label[for="customer-name"], label[for="instructions"] { display: block; font-weight: 600; margin-bottom: 6px; }
+#instructions { display: block; width: 100%; margin-top: 6px; font: inherit; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; resize: vertical; }
+#instructions + .hint { margin-top: 4px; }
+.optional { color: var(--muted); font-weight: normal; }
+.line-note { font-size: 0.92rem; font-style: italic; overflow-wrap: anywhere; }
+.kitchen .line-note { font-style: normal; font-weight: 600; color: var(--accent-dark); }
 #customer-name { width: 100%; font: inherit; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; }
 
 .hint { color: var(--muted); font-size: 0.92rem; }

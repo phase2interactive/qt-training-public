@@ -4,11 +4,12 @@
 const CART_KEY = "np.cart";
 const MIN_QTY = 1;
 const MAX_QTY = 20;
+const MAX_INSTRUCTIONS = 140;
 
 const state = {
   menu: null,                                  // { sizes: [...], toppings: [...] }
   builder: { size: null, toppings: new Set() },
-  cart: [],                                    // [{ size, toppings: [ids, menu order], quantity }]
+  cart: [],                                    // [{ size, toppings: [ids, menu order], instructions, quantity }]
   submitting: false,
 };
 
@@ -32,7 +33,8 @@ function normalizeToppings(ids) {
   return state.menu.toppings.map((t) => t.id).filter((id) => ids.includes(id));
 }
 
-function lineKey(size, toppings) { return size + "|" + toppings.join(","); }
+/** Pizzas with the same size, toppings, and instructions share one cart line. */
+function lineKey(line) { return line.size + "|" + line.toppings.join(",") + "|" + line.instructions; }
 
 function clampQty(n) { return Math.min(MAX_QTY, Math.max(MIN_QTY, n)); }
 
@@ -54,7 +56,12 @@ function loadCart() {
     if (!line.toppings.every((id) => findTopping(id))) continue;
     if (new Set(line.toppings).size !== line.toppings.length) continue;
     if (!Number.isInteger(line.quantity) || line.quantity < MIN_QTY || line.quantity > MAX_QTY) continue;
-    result.push({ size: line.size, toppings: normalizeToppings(line.toppings), quantity: line.quantity });
+    const instructions = line.instructions ?? "";
+    if (typeof instructions !== "string" || instructions.trim().length > MAX_INSTRUCTIONS) continue;
+    result.push({
+      size: line.size, toppings: normalizeToppings(line.toppings),
+      instructions: instructions.trim(), quantity: line.quantity,
+    });
   }
   return result;
 }
@@ -64,6 +71,7 @@ function loadCart() {
 function resetBuilder() {
   state.builder.size = state.menu.sizes[0].id;
   state.builder.toppings = new Set();
+  $("instructions").value = "";
   for (const input of document.querySelectorAll("#builder input")) {
     input.checked = input.type === "radio" && input.value === state.builder.size;
   }
@@ -108,8 +116,9 @@ function addToOrder(e) {
   e.preventDefault();
   const size = state.builder.size;
   const toppings = normalizeToppings([...state.builder.toppings]);
-  const key = lineKey(size, toppings);
-  const existing = state.cart.find((l) => lineKey(l.size, l.toppings) === key);
+  const instructions = $("instructions").value.trim().slice(0, MAX_INSTRUCTIONS);
+  const key = lineKey({ size, toppings, instructions });
+  const existing = state.cart.find((l) => lineKey(l) === key);
   let message;
   if (existing) {
     if (existing.quantity >= MAX_QTY) {
@@ -119,7 +128,7 @@ function addToOrder(e) {
       message = "Added another to your order.";
     }
   } else {
-    state.cart.push({ size, toppings, quantity: 1 });
+    state.cart.push({ size, toppings, instructions, quantity: 1 });
     message = "Added to your order.";
   }
   $("add-status").textContent = message;
@@ -132,7 +141,7 @@ function addToOrder(e) {
 
 function describePizza(line) {
   const names = line.toppings.map((id) => findTopping(id).name);
-  return { title: findSize(line.size).name, toppings: toppingsText(names) };
+  return { title: findSize(line.size).name, toppings: toppingsText(names), note: instructionsText(line.instructions) };
 }
 
 // Where keyboard focus should go after the next cart render, e.g. "large|pepperoni:inc".
@@ -161,8 +170,9 @@ function renderCart() {
   list.replaceChildren(...state.cart.map((line, index) => {
     const unit = unitPriceCents(line.size, line.toppings);
     const d = describePizza(line);
-    const key = lineKey(line.size, line.toppings);
-    const label = `${d.title}, ${d.toppings}`;
+    const key = lineKey(line);
+    // Names the size, toppings, and note, so lines that differ only by instructions can be told apart.
+    const label = [d.title, d.toppings, d.note].filter(Boolean).join(", ");
     const qtyInput = el("input", {
       type: "number", min: MIN_QTY, max: MAX_QTY, step: 1, value: line.quantity, class: "qty-input",
       attrs: { "aria-label": `Quantity for ${label}`, inputmode: "numeric", "data-focus": key + ":qty" },
@@ -177,6 +187,7 @@ function renderCart() {
       el("div", { class: "line-info" },
         el("div", { class: "line-title", text: d.title }),
         el("div", { class: "line-toppings", text: d.toppings }),
+        d.note && el("div", { class: "line-note", text: d.note }),
         el("div", { class: "line-unit", text: formatCents(unit) + " each" })),
       el("div", { class: "qty" },
         el("button", {
@@ -216,7 +227,7 @@ function setQuantity(index, n) {
  */
 function updateLineInPlace(index) {
   const line = state.cart[index];
-  const key = lineKey(line.size, line.toppings);
+  const key = lineKey(line);
   const li = $("cart-lines").querySelector(`li[data-key="${CSS.escape(key)}"]`);
   if (!li) { renderCart(); return; }
 
@@ -241,7 +252,7 @@ function removeLine(index) {
   // or the cart heading when the cart becomes empty) instead of dropping it on <body>.
   if ($("cart-lines").contains(document.activeElement)) {
     const neighbor = state.cart[index + 1] ?? state.cart[index - 1];
-    pendingFocus = neighbor ? lineKey(neighbor.size, neighbor.toppings) + ":remove" : "cart-title";
+    pendingFocus = neighbor ? lineKey(neighbor) + ":remove" : "cart-title";
   }
   state.cart.splice(index, 1);
   $("add-status").textContent = "";
@@ -292,7 +303,9 @@ async function submitOrder(e) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         customerName: name,
-        items: state.cart.map((l) => ({ size: l.size, toppings: l.toppings, quantity: l.quantity })),
+        items: state.cart.map((l) => ({
+          size: l.size, toppings: l.toppings, quantity: l.quantity, instructions: l.instructions || null,
+        })),
       }),
     });
 
@@ -337,6 +350,7 @@ function showConfirmation(order) {
       el("div", { class: "line-info" },
         el("div", { class: "line-title", text: `${item.quantity} × ${item.sizeName}` }),
         el("div", { class: "line-toppings", text: toppingsText(item.toppings.map((t) => t.name)) }),
+        item.instructions && el("div", { class: "line-note", text: instructionsText(item.instructions) }),
         el("div", { class: "line-unit", text: formatCents(item.unitPriceCents) + " each" })),
       el("div", { class: "line-total", text: formatCents(item.lineTotalCents) }))));
   $("confirm-total").textContent = formatCents(order.totalCents);

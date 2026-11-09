@@ -22,6 +22,7 @@ public static class Menu
     public const int MinQuantity = 1;
     public const int MaxQuantity = 20;
     public const int MaxNameLength = 50;
+    public const int MaxInstructionsLength = 140;
 
     public static MenuItem? FindSize(string? id) => Sizes.FirstOrDefault(s => s.Id == id);
     public static MenuItem? FindTopping(string? id) => Toppings.FirstOrDefault(t => t.Id == id);
