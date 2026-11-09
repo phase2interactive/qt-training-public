@@ -115,3 +115,10 @@ fix these issues identified by our tester
 ok, an agent addressed your findings, please retest and verify these are now fixed
 
 **Summary:** Retested after commit 2bcf7de (favicon). The /favicon.ico console 404 is gone on both pages, and AC-3.1 to AC-3.3 still pass. No code changed; only prompt-log.md was updated.
+## 2026-11-09 14:31 CST · pass-4
+
+**Prompt:**
+ok, this is all good now, open a pr into both this repo and the forked repo
+
+**Summary:** Opened PR #4 from pass-4 into main on the fork (shwilliamson/qt-training-public-stuart) and draft PR #4 "Stuart Williamson - Pass 4" into phase2interactive/qt-training-public main. Only prompt-log.md changed.
+
