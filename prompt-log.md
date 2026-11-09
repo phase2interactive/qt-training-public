@@ -61,3 +61,10 @@ ok, open a pr for this branch both in this repo and in the forked repo
 
 **Summary:** Opened PR #3 from pass-3 into main on the fork (shwilliamson/qt-training-public-stuart) and draft PR #3 "Stuart Williamson - Pass 3" into phase2interactive/qt-training-public main. Only prompt-log.md changed.
 
+## 2026-11-09 13:59 CST · pass-4
+
+**Prompt:**
+! git checkout -b pass-4
+
+**Summary:** User created the pass-4 branch from pass-3. No changes besides this log entry.
+
